@@ -4,6 +4,7 @@ using System.Text;
 using Nancy;
 using Nancy.Hosting.Self;
 using ThunderSdk;
+using static Voltali.Program;
 
 namespace Voltali
 {
@@ -66,19 +67,36 @@ namespace Voltali
         public HomeModule()
         {
             Get("/", x => "Voltali Download Manager");
+
             Get("/download/{url}", x =>
             {
                 var mUrl = new Url(Encoding.Default.GetString(Convert.FromBase64String(x.url)));
-                Program.manager.CreateNewTask(mUrl.ToString(), mUrl.Path, isOnlyOriginal: false);
-                return Program.manager.StartAllTask().ToString();
+                manager.CreateNewTask(mUrl.ToString(), mUrl.Path, isOnlyOriginal: false);
+                return manager.StartAllTask().ToString();
             });
-            Get("/stop", x => Program.manager.PauseAllTask().ToString());
-            Get("/stop/{int:item}", x => Program.manager.AllDownLoad[x.item].StopTask());
 
-            Get("/start", x => Program.manager.StartAllTask().ToString());
-            Get("/stop/{int:item}", x => Program.manager.AllDownLoad[x.item].StopTask());
+            Get("/stop", x => manager.PauseAllTask().ToString());
+            Get("/stop/{item}", x => manager.AllDownLoad[x.item].StopTask().ToString());
 
-            Get("/get", x => Program.manager.AllDownLoad[0].TaskInfo.ToString());
+            Get("/start", x => manager.StartAllTask().ToString());
+            Get("/start/{item}", x => manager.AllDownLoad[x.item].StartTask().ToString());
+
+            Get("/delete/{item}",
+                x => (manager.AllDownLoad[x.item].StopTask() &&
+                      manager.AllDownLoad[x.item].DeleteTask()).ToString());
+
+            Get("/get", x =>
+            {
+                if (manager.AllDownLoad.Count == 0)
+                    return "# nothing at all";
+
+                string str = "";
+                foreach (var item in manager.AllDownLoad)
+                    str +=
+                        $"# {(item.Id - 1).ToString()} | {item.FileName} | {item.TaskInfo.Percent * 100:0.0} | {item.TaskInfo.State}"
+                        + Environment.NewLine;
+                return str;
+            });
         }
     }
 }
