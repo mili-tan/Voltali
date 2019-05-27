@@ -7,7 +7,7 @@ using ThunderSdk;
 
 namespace Voltali
 {
-    class Program
+    static class Program
     {
         public static DownloadManager manager = new DownloadManager(64, Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads"));
@@ -73,8 +73,12 @@ namespace Voltali
                 return Program.manager.StartAllTask().ToString();
             });
             Get("/stop", x => Program.manager.PauseAllTask().ToString());
+            Get("/stop/{int:item}", x => Program.manager.AllDownLoad[x.item].StopTask());
+
             Get("/start", x => Program.manager.StartAllTask().ToString());
-            Get("/get", x => Program.manager.AllDownLoad[0].TaskInfo.FileName);
+            Get("/stop/{int:item}", x => Program.manager.AllDownLoad[x.item].StopTask());
+
+            Get("/get", x => Program.manager.AllDownLoad[0].TaskInfo.ToString());
         }
     }
 }
