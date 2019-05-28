@@ -97,6 +97,14 @@ namespace Voltali
                         + Environment.NewLine;
                 return str;
             });
+
+            Get("/get/{item}", x =>
+            {
+                var info = manager.AllDownLoad[x.item];
+                return $"{info.TaskInfo.Percent * 100:0.0}% TotalSize: {info.TaskInfo.TotalSize:0.0} " +
+                       $"/ {info.TaskInfo.TotalDownload:0.0} | Speed: {info.TaskInfo.Speed:0.0}" +
+                       $"(P2P: {info.TaskInfo.SpeedP2P:0.0} P2S: {info.TaskInfo.SpeedP2S:0.0}) | OnlySource: {info.IsOnlyOriginal}";
+            });
         }
     }
 }
