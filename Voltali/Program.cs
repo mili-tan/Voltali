@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using Nancy;
@@ -62,6 +63,7 @@ namespace Voltali
         }
     }
 
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public sealed class HomeModule : NancyModule
     {
         public HomeModule()
@@ -72,6 +74,12 @@ namespace Voltali
             {
                 var mUrl = new Url(Encoding.Default.GetString(Convert.FromBase64String(x.url)));
                 manager.CreateNewTask(mUrl.ToString(), mUrl.Path, isOnlyOriginal: false);
+                return manager.StartAllTask().ToString();
+            });
+
+            Get("/download/{url}/{name}", x =>
+            {
+                manager.CreateNewTask(x.url, x.name, isOnlyOriginal: false);
                 return manager.StartAllTask().ToString();
             });
 
