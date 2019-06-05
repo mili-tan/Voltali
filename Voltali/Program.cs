@@ -68,7 +68,38 @@ namespace Voltali
     {
         public HomeModule()
         {
-            Get("/", x => "Voltali Download Manager");
+            Get("/", x => {
+                if (manager.AllDownLoad.Count == 0)
+                    return "# nothing at all";
+
+                string str = "";
+                foreach (var item in manager.AllDownLoad)
+                    str +=
+                        $"# {(item.Id - 1).ToString()} | {item.FileName} | {item.TaskInfo.Percent * 100:0.0} | {item.TaskInfo.State}"
+                        + Environment.NewLine;
+                return str;
+            });
+
+            Get("/get", x =>
+            {
+                if (manager.AllDownLoad.Count == 0)
+                    return "# nothing at all";
+
+                string str = "";
+                foreach (var item in manager.AllDownLoad)
+                    str +=
+                        $"# {(item.Id - 1).ToString()} | {item.FileName} | {item.TaskInfo.Percent * 100:0.0} | {item.TaskInfo.State}"
+                        + Environment.NewLine;
+                return str;
+            });
+
+            Get("/get/{item}", x =>
+            {
+                var info = manager.AllDownLoad[x.item];
+                return $"{info.TaskInfo.Percent * 100:0.0}% TotalSize: {info.TaskInfo.TotalSize:0.0} " +
+                       $"/ {info.TaskInfo.TotalDownload:0.0} | Speed: {info.TaskInfo.Speed:0.0}" +
+                       $"(P2P: {info.TaskInfo.SpeedP2P:0.0} P2S: {info.TaskInfo.SpeedP2S:0.0}) | OnlySource: {info.IsOnlyOriginal}";
+            });
 
             Get("/download/{url}", x =>
             {
@@ -92,27 +123,6 @@ namespace Voltali
             Get("/delete/{item}",
                 x => (manager.AllDownLoad[x.item].StopTask() &&
                       manager.AllDownLoad[x.item].DeleteTask()).ToString());
-
-            Get("/get", x =>
-            {
-                if (manager.AllDownLoad.Count == 0)
-                    return "# nothing at all";
-
-                string str = "";
-                foreach (var item in manager.AllDownLoad)
-                    str +=
-                        $"# {(item.Id - 1).ToString()} | {item.FileName} | {item.TaskInfo.Percent * 100:0.0} | {item.TaskInfo.State}"
-                        + Environment.NewLine;
-                return str;
-            });
-
-            Get("/get/{item}", x =>
-            {
-                var info = manager.AllDownLoad[x.item];
-                return $"{info.TaskInfo.Percent * 100:0.0}% TotalSize: {info.TaskInfo.TotalSize:0.0} " +
-                       $"/ {info.TaskInfo.TotalDownload:0.0} | Speed: {info.TaskInfo.Speed:0.0}" +
-                       $"(P2P: {info.TaskInfo.SpeedP2P:0.0} P2S: {info.TaskInfo.SpeedP2S:0.0}) | OnlySource: {info.IsOnlyOriginal}";
-            });
         }
     }
 }
